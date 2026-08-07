@@ -94,6 +94,7 @@ services:
       NEO4J_URI: bolt://neo4j
       NEO4J_USERNAME: neo4j
       NEO4J_PASSWORD: datahub
+      ENTITY_REGISTRY_CONFIG_PATH: /datahub/datahub-gms/resources/entity-registry.yml
       JAVA_OPTS: "-Xmx512m"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]

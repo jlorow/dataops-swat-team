@@ -55,18 +55,6 @@ services:
       timeout: 10s
       retries: 10
 
-  neo4j:
-    image: neo4j:4.4.9
-    environment:
-      NEO4J_AUTH: neo4j/datahub
-      NEO4J_dbms_default__database: graph.db
-      NEO4J_dbms_allow__upgrade: "true"
-    healthcheck:
-      test: ["CMD", "wget", "-O", "/dev/null", "-q", "http://localhost:7474"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-
   datahub-gms:
     image: acryldata/datahub-gms:v0.14.1
     depends_on:
@@ -75,8 +63,6 @@ services:
       schema-registry:
         condition: service_healthy
       elasticsearch:
-        condition: service_healthy
-      neo4j:
         condition: service_healthy
     ports:
       - "8080:8080"
@@ -90,10 +76,7 @@ services:
       KAFKA_SCHEMAREGISTRY_URL: http://schema-registry:8081
       ELASTICSEARCH_HOST: elasticsearch
       ELASTICSEARCH_PORT: 9200
-      NEO4J_HOST: http://neo4j:7474
-      NEO4J_URI: bolt://neo4j
-      NEO4J_USERNAME: neo4j
-      NEO4J_PASSWORD: datahub
+      GRAPH_SERVICE_IMPL: elasticsearch
       ENTITY_REGISTRY_CONFIG_PATH: /datahub/datahub-gms/resources/entity-registry.yml
       JAVA_OPTS: "-Xmx512m"
     healthcheck:

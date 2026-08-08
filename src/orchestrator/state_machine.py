@@ -24,7 +24,13 @@ class IncidentStateMachine:
         ],
         IncidentStatus.FIXING: [IncidentStatus.FIX_PROPOSED, IncidentStatus.ESCALATED],
         IncidentStatus.FIX_PROPOSED: [IncidentStatus.VALIDATING, IncidentStatus.ESCALATED],
-        IncidentStatus.VALIDATING: [IncidentStatus.RESOLVED, IncidentStatus.ESCALATED],
+        IncidentStatus.VALIDATING: [
+            IncidentStatus.READY_TO_DEPLOY,
+            IncidentStatus.FIX_PROPOSED,
+            IncidentStatus.RESOLVED,
+            IncidentStatus.ESCALATED,
+        ],
+        IncidentStatus.READY_TO_DEPLOY: [],
         IncidentStatus.RESOLVED: [],
         IncidentStatus.ESCALATED: [],
     }

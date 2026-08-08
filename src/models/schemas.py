@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 class IncidentStatus(str, Enum):
     DETECTED = "DETECTED"
     DIAGNOSING = "DIAGNOSING"
+    ROOT_CAUSE_IDENTIFIED = "ROOT_CAUSE_IDENTIFIED"
     FIXING = "FIXING"
     VALIDATING = "VALIDATING"
     RESOLVED = "RESOLVED"
@@ -67,6 +68,14 @@ class DiagnosisReport(BaseModel):
     lineage_path: list[str] = Field(default_factory=list)
     owner_email: str
     summary_text: str
+    # Fields populated by the Detective Agent's investigation.
+    impact_assessment: str = Field(default="", description="e.g. 'Affects 3 downstream tables and 2 dashboards'")
+    affected_datasets: list[str] = Field(default_factory=list)
+    recommended_fix_type: str = Field(
+        default="", description="e.g. SCHEMA_UPDATE, FRESHNESS_RERUN, OWNER_ASSIGNMENT, LINEAGE_REPAIR"
+    )
+    confidence_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    evidence: dict = Field(default_factory=dict)
 
 
 class FixReport(BaseModel):

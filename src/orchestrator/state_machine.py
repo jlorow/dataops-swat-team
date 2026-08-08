@@ -13,7 +13,15 @@ class IncidentStateMachine:
 
     TRANSITIONS: Dict[IncidentStatus, List[IncidentStatus]] = {
         IncidentStatus.DETECTED: [IncidentStatus.DIAGNOSING],
-        IncidentStatus.DIAGNOSING: [IncidentStatus.FIXING, IncidentStatus.ESCALATED],
+        IncidentStatus.DIAGNOSING: [
+            IncidentStatus.ROOT_CAUSE_IDENTIFIED,
+            IncidentStatus.FIXING,
+            IncidentStatus.ESCALATED,
+        ],
+        IncidentStatus.ROOT_CAUSE_IDENTIFIED: [
+            IncidentStatus.FIXING,
+            IncidentStatus.ESCALATED,
+        ],
         IncidentStatus.FIXING: [IncidentStatus.VALIDATING, IncidentStatus.ESCALATED],
         IncidentStatus.VALIDATING: [IncidentStatus.RESOLVED, IncidentStatus.ESCALATED],
         IncidentStatus.RESOLVED: [],

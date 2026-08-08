@@ -17,7 +17,13 @@ class OllamaClient(LLMClient):
         except Exception:
             return False
 
-    def generate(self, prompt: str, system_prompt: str | None = None, temperature: float = 0.1) -> str:
+    def generate(
+        self,
+        prompt: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.1,
+        max_tokens: int = 2048,
+    ) -> str:
         """Generate text via the Ollama /api/generate endpoint."""
         try:
             resp = requests.post(
@@ -27,7 +33,7 @@ class OllamaClient(LLMClient):
                     "prompt": prompt,
                     "system": system_prompt or "",
                     "stream": False,
-                    "options": {"temperature": temperature},
+                    "options": {"temperature": temperature, "num_predict": max_tokens},
                 },
                 timeout=60,
             )

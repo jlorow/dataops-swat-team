@@ -27,7 +27,13 @@ class OpenRouterClient(LLMClient):
         except Exception:
             return False
 
-    def generate(self, prompt: str, system_prompt: str | None = None, temperature: float = 0.1) -> str:
+    def generate(
+        self,
+        prompt: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.1,
+        max_tokens: int = 2048,
+    ) -> str:
         """Generate text via the OpenRouter chat completions endpoint."""
         try:
             resp = requests.post(
@@ -43,6 +49,7 @@ class OpenRouterClient(LLMClient):
                         {"role": "user", "content": prompt},
                     ],
                     "temperature": temperature,
+                    "max_tokens": max_tokens,
                 },
                 timeout=60,
             )

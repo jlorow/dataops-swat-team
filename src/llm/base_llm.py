@@ -4,7 +4,13 @@ from abc import ABC, abstractmethod
 
 class LLMClient(ABC):
     @abstractmethod
-    def generate(self, prompt: str, system_prompt: str | None = None, temperature: float = 0.1) -> str:
+    def generate(
+        self,
+        prompt: str,
+        system_prompt: str | None = None,
+        temperature: float = 0.1,
+        max_tokens: int = 2048,
+    ) -> str:
         """Generate text from the LLM. Returns the generated string."""
         pass
 

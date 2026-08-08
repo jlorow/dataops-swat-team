@@ -13,6 +13,7 @@ class IncidentStatus(str, Enum):
     DIAGNOSING = "DIAGNOSING"
     ROOT_CAUSE_IDENTIFIED = "ROOT_CAUSE_IDENTIFIED"
     FIXING = "FIXING"
+    FIX_PROPOSED = "FIX_PROPOSED"
     VALIDATING = "VALIDATING"
     RESOLVED = "RESOLVED"
     ESCALATED = "ESCALATED"
@@ -79,10 +80,17 @@ class DiagnosisReport(BaseModel):
 
 
 class FixReport(BaseModel):
-    fix_type: str  # e.g. "DBT_MODEL", "SQL_PATCH", "DAG_UPDATE"
-    original_code: str
-    fixed_code: str
-    explanation: str
+    fix_id: str = Field(default="", description="Unique fix identifier")
+    incident_id: str = Field(default="", description="Incident this fix addresses")
+    target_dataset_urn: str = Field(default="", description="Dataset the fix targets")
+    sql_code: str = Field(default="", description="The generated SQL fix")
+    explanation: str = ""
+    fix_type: str = "SQL_PATCH"  # e.g. "SCHEMA_UPDATE", "FRESHNESS_RERUN", "OWNER_ASSIGNMENT", "LINEAGE_REPAIR"
+    is_valid: bool = True
+    validation_error: str | None = None
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    original_code: str = ""  # kept for backward compatibility (pre-fix code, unused)
+    fixed_code: str = ""  # kept for backward compatibility (mirrors sql_code)
 
 
 class AgentEvent(BaseModel):

@@ -30,3 +30,6 @@ htmlcov/
 
 # Runtime data (incident store JSONL)
 data/*.jsonl
+
+# Story 4.2 acceptance test — requires live DataHub droplet, NOT committed
+test_orchestrator.py

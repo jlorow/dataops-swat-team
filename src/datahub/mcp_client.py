@@ -16,9 +16,13 @@ shapes match what DataHub actually serves:
   Personal Access Token is supplied.
 
 Usage:
-    client = DataHubMCPClient(gms_url="http://localhost:8080")
-    datasets = await client.search_datasets("order", count=10)
-    await client.aclose()
+    async with DataHubMCPClient(gms_url="http://localhost:8080") as client:
+        datasets = await client.search_datasets("order", count=10)
+    if await client.healthcheck():
+        ...
+
+HTTP sessions are opened per request, so ``__aenter__``/``__aexit__`` are
+provided for the async-context-manager protocol but release no resources.
 """
 
 from __future__ import annotations
@@ -182,6 +186,10 @@ query DatasetProperties($urn: String!) {
         key
         value
       }
+      created
+      lastModified {
+        time
+      }
     }
   }
 }
@@ -227,6 +235,21 @@ class DataHubMCPClient:
             self.headers["Authorization"] = f"Bearer {self.token}"
         else:
             self.auth = (DATAHUB_USER, DATAHUB_PASSWORD)
+
+    async def __aenter__(self) -> "DataHubMCPClient":
+        return self
+
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        # HTTP sessions are opened per request, so there is nothing to release.
+        return None
+
+    async def healthcheck(self) -> bool:
+        """Return True if the DataHub GMS GraphQL endpoint responds."""
+        try:
+            await self._query("{ __schema { queryType { name } } }")
+            return True
+        except DataHubMCPError:
+            return False
 
     def _new_client(self) -> httpx.AsyncClient:
         """Build a fresh AsyncClient per request (no shared lifecycle state)."""
@@ -384,6 +407,8 @@ class DataHubMCPClient:
             "qualified_name": props.get("qualifiedName"),
             "description": props.get("description"),
             "custom_properties": custom_properties,
+            "created": props.get("created"),  # epoch millis or None
+            "last_modified": (props.get("lastModified") or {}).get("time"),
         }
 
 

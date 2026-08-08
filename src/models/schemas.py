@@ -22,6 +22,26 @@ class FailureType(str, Enum):
     FRESHNESS_VIOLATION = "FRESHNESS_VIOLATION"
     BROKEN_JOB = "BROKEN_JOB"
     MANUAL_TEST = "MANUAL_TEST"
+    OWNERSHIP_GAP = "OWNERSHIP_GAP"
+    LINEAGE_GAP = "LINEAGE_GAP"
+
+
+class IncidentType(str, Enum):
+    """Anomaly categories detected by the Sentry Agent."""
+
+    SCHEMA_DRIFT = "SCHEMA_DRIFT"
+    FRESHNESS_VIOLATION = "FRESHNESS_VIOLATION"
+    OWNERSHIP_GAP = "OWNERSHIP_GAP"
+    LINEAGE_GAP = "LINEAGE_GAP"
+
+
+class AgentType(str, Enum):
+    """The four SWAT team agents."""
+
+    SENTRY = "SENTRY"
+    DETECTIVE = "DETECTIVE"
+    ENGINEER = "ENGINEER"
+    VALIDATOR = "VALIDATOR"
 
 
 class AgentEventType(str, Enum):

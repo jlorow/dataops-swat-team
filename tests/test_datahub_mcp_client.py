@@ -231,6 +231,8 @@ def test_get_dataset_properties_parses_custom_props():
                             {"key": "owner_team", "value": "data-platform"},
                             {"key": "tier", "value": "gold"},
                         ],
+                        "created": 1700000000000,
+                        "lastModified": {"time": 1700000000123},
                     },
                 }
             }
@@ -245,6 +247,8 @@ def test_get_dataset_properties_parses_custom_props():
         "owner_team": "data-platform",
         "tier": "gold",
     }
+    assert props["created"] == 1700000000000
+    assert props["last_modified"] == 1700000000123
 
 
 # ---------------------------------------------------------------------------
@@ -287,6 +291,44 @@ def test_query_raises_on_connection_error():
     client = client_with(handler)
     with pytest.raises(DataHubMCPError, match="unreachable"):
         run(client.search_datasets())
+
+
+# ---------------------------------------------------------------------------
+# healthcheck + async context manager
+# ---------------------------------------------------------------------------
+def test_healthcheck_true_when_gms_responds():
+    def handler(request):
+        assert "__schema" in request.content.decode()
+        return graphql_response({"__schema": {"queryType": {"name": "Query"}}})
+
+    client = client_with(handler)
+    assert run(client.healthcheck()) is True
+
+
+def test_healthcheck_false_on_http_error():
+    client = client_with(lambda request: httpx.Response(503, text="down"))
+    assert run(client.healthcheck()) is False
+
+
+def test_healthcheck_false_on_graphql_error():
+    client = client_with(
+        lambda request: httpx.Response(200, json={"errors": [{"message": "boom"}]})
+    )
+    assert run(client.healthcheck()) is False
+
+
+def test_async_context_manager():
+    def handler(request):
+        return graphql_response({"search": {"searchResults": []}})
+
+    client = client_with(handler)
+
+    async def go():
+        async with client as ctx:
+            assert ctx is client
+            return await ctx.search_datasets()
+
+    assert run(go()) == []
 
 
 # ---------------------------------------------------------------------------

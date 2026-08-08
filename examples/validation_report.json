@@ -1,0 +1,24 @@
+{
+  "message": "Fix fix-inc-freshness_violation-0b17067135fb-99b54230 validated: score=1.0, recommendation=DEPLOY",
+  "fix_id": "fix-inc-freshness_violation-0b17067135fb-99b54230",
+  "safety_score": 1.0,
+  "is_safe": true,
+  "recommendation": "DEPLOY",
+  "schema_check": {
+    "passed": true,
+    "missing_columns": [],
+    "type_concerns": [],
+    "details": "checked 1 referenced, 0 added, 0 altered, 0 dropped column(s) against 55 schema field(s)"
+  },
+  "lineage_check": {
+    "passed": true,
+    "affected_downstream": [],
+    "details": "0 dropped column(s), checked 13 downstream dataset schema(s); adding/altering columns is non-breaking"
+  },
+  "syntax_check": {
+    "passed": true,
+    "errors": [],
+    "details": "1 statement(s), 1 executable"
+  },
+  "breaking_changes": []
+}

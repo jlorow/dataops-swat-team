@@ -1,0 +1,74 @@
+# DataOps SWAT Team — real pipeline run
+Generated at: 2026-08-08 17:17:10 UTC
+DataHub GMS: http://67.205.141.90:8080
+Mode: live, no LLM API key (Engineer uses schema-aware template fallback)
+
+## Stage 1 — DETECT (SentryAgent): 5 incident(s)
+  + inc-freshness_violation-0b17067135fb
+    type=FRESHNESS_VIOLATION
+    urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.ORDER_ENTRY_DB.analytics.order_details,PROD)
+  + inc-freshness_violation-350ea6a26368
+    type=FRESHNESS_VIOLATION
+    urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.promotions,PROD)
+  + inc-freshness_violation-fa142882b18d
+    type=FRESHNESS_VIOLATION
+    urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.addresses,PROD)
+  + inc-freshness_violation-cae0c88d1288
+    type=FRESHNESS_VIOLATION
+    urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.countries,PROD)
+  + inc-freshness_violation-e4489a1d1980
+    type=FRESHNESS_VIOLATION
+    urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.customers,PROD)
+
+## Stage 2 — DIAGNOSE (DetectiveAgent): 5 incident(s)
+  ~ inc-freshness_violation-0b17067135fb -> ROOT_CAUSE_IDENTIFIED
+    root_cause_urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.ORDER_ENTRY_DB.analytics.order_details,PROD)
+    root_cause_type=FRESHNESS_VIOLATION
+    summary=Freshness violation on urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.ORDER_ENTRY_DB.analytics.order_details,PROD) (last modified 1970-01-01T00:00:00+00:00): no upstream source is older, the whole chain is stale or lineage is missing (11 upstream sources checked).
+    confidence=0.8 owner=b2fd91.brock1@example.com fix_type=FRESHNESS_RERUN
+  ~ inc-freshness_violation-350ea6a26368 -> ROOT_CAUSE_IDENTIFIED
+    root_cause_urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.promotions,PROD)
+    root_cause_type=FRESHNESS_VIOLATION
+    summary=Freshness violation on urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.promotions,PROD) (last modified 1970-01-01T00:00:00+00:00): no upstream source is older, the whole chain is stale or lineage is missing (1 upstream sources checked).
+    confidence=0.8 owner= fix_type=FRESHNESS_RERUN
+  ~ inc-freshness_violation-fa142882b18d -> ROOT_CAUSE_IDENTIFIED
+    root_cause_urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.addresses,PROD)
+    root_cause_type=FRESHNESS_VIOLATION
+    summary=Freshness violation on urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.addresses,PROD) (last modified 1970-01-01T00:00:00+00:00): no upstream source is older, the whole chain is stale or lineage is missing (1 upstream sources checked).
+    confidence=0.8 owner= fix_type=FRESHNESS_RERUN
+  ~ inc-freshness_violation-cae0c88d1288 -> ROOT_CAUSE_IDENTIFIED
+    root_cause_urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.countries,PROD)
+    root_cause_type=FRESHNESS_VIOLATION
+    summary=Freshness violation on urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.countries,PROD) (last modified 1970-01-01T00:00:00+00:00): no upstream source is older, the whole chain is stale or lineage is missing (1 upstream sources checked).
+    confidence=0.8 owner= fix_type=FRESHNESS_RERUN
+  ~ inc-freshness_violation-e4489a1d1980 -> ROOT_CAUSE_IDENTIFIED
+    root_cause_urn=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.customers,PROD)
+    root_cause_type=FRESHNESS_VIOLATION
+    summary=Freshness violation on urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.customers,PROD) (last modified 1970-01-01T00:00:00+00:00): no upstream source is older, the whole chain is stale or lineage is missing (1 upstream sources checked).
+    confidence=0.8 owner=b2fd91.jonny1@example.com fix_type=FRESHNESS_RERUN
+
+## Stage 3 — ENGINEER (EngineerAgent): 2 fix(es)
+  # fix-inc-freshness_violation-0b17067135fb-99b54230
+    fix_type=FRESHNESS_RERUN is_valid=True
+    target=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.ORDER_ENTRY_DB.analytics.order_details,PROD)
+    explanation=Rerun the ingestion for order_details and verify the latest order_date value.
+    sql:
+      -- FRESHNESS_RERUN: refresh order_details and confirm recent data
+      SELECT MAX(order_date) AS latest_ingested_ts FROM order_details;
+  # fix-inc-freshness_violation-350ea6a26368-fbf880af
+    fix_type=FRESHNESS_RERUN is_valid=True
+    target=urn:li:dataset:(urn:li:dataPlatform:dbt,b2fd91.order_entry_db.order_entry.promotions,PROD)
+    explanation=Rerun the ingestion for promotions and verify the latest promotion_start_date value.
+    sql:
+      -- FRESHNESS_RERUN: refresh promotions and confirm recent data
+      SELECT MAX(promotion_start_date) AS latest_ingested_ts FROM promotions;
+
+## Stage 4 — VALIDATE (ValidatorAgent): 2 incident(s)
+  - inc-freshness_violation-0b17067135fb -> READY_TO_DEPLOY
+    safety_score=1.0 recommendation=DEPLOY
+    checks: syntax={'passed': True, 'errors': [], 'details': '1 statement(s), 1 executable'} schema={'passed': True, 'missing_columns': [], 'type_concerns': [], 'details': 'checked 1 referenced, 0 added, 0 altered, 0 dropped column(s) against 55 schema field(s)'} lineage={'passed': True, 'affected_downstream': [], 'details': '0 dropped column(s), checked 13 downstream dataset schema(s); adding/altering columns is non-breaking'}
+    breaking_changes=[]
+  - inc-freshness_violation-350ea6a26368 -> READY_TO_DEPLOY
+    safety_score=1.0 recommendation=DEPLOY
+    checks: syntax={'passed': True, 'errors': [], 'details': '1 statement(s), 1 executable'} schema={'passed': True, 'missing_columns': [], 'type_concerns': [], 'details': 'checked 1 referenced, 0 added, 0 altered, 0 dropped column(s) against 6 schema field(s)'} lineage={'passed': True, 'affected_downstream': [], 'details': '0 dropped column(s), checked 1 downstream dataset schema(s); adding/altering columns is non-breaking'}
+    breaking_changes=[]
